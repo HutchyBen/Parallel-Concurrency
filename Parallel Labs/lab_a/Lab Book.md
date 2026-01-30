@@ -135,26 +135,58 @@ The code to run code on the GPU consists of
 - Allocate memory on the GPU with `cudaMalloc` and store the addresses in seperate pointers
 - Copy the arrays from the CPU onto the GPU with `cudaMemcpy`
 - Execute the code on the GPU specifying thread count to match the size of arrays
-- Wait for all threads to execute
+- Wait for all threads to execute with `cudaDeviceSynchronize`
 - Copy result back to the CPU with `cudaMemcpy`
-- Free all memory
+- Free all memory with `cudaFree`
 
-Overall the code is not yet too difficult to understand and all memory management is nearly the same as C memory management with a minor difference in `malloc` is you pass the pointer to the address instead of it returning the address
+Overall the code is not yet too difficult to understand and all memory management is nearly the same as C memory management with a minor difference in `malloc` is you pass the pointer to the address instead of it returning the address. 
 
+
+
+### Error handling and synchronization
+**Question**
+How does error handling work? and why is synchronization needed?
+**Reflection**
 The error handling in CUDA works by CUDA functions returning a status which can be compared with cudaSuccess to determine if an error has occured.
+This is needed as if errors and manually checked, execution will continue when the GPU could be in a state where it can't continue execution such as some memory not being allocated causing issues when copying data to the GPU.
 
+Synchronization occurs with cudaDeviceSynchronize which will wait for all threads to finish before continuing execution. This is needed as if we continue without all threads being finished there may be data that hasn't been processed yet.
 
+### Performance Profiling
+**Question**
+Implement profiling in the code to determine the effect of increasing the arraySize
 
-### 10 items
+**Solution**
+```c
+cudaEvent_t start, stop;
+cudaEventCreate(&start);
+cudaEventCreate(&stop);
+
+cudaEventRecord(start);
+addKernel<<<1, arraySize >>>(dev_c, dev_a, dev_b);
+error = cudaGetLastError();
+if (error != cudaSuccess) {
+    fprintf(stderr, "error occured with addKernel");
+    goto CleanUp;
+}
+cudaEventRecord(stop);
+
+cudaEventSynchronize(stop);
+float milliseconds = 0;
+cudaEventElapsedTime(&milliseconds, start, stop);
+printf("Time taken: %f ms\n", milliseconds);
+error = cudaDeviceSynchronize();
+if (error != cudaSuccess) {
+    fprintf(stderr, "failed copy dev_c");
+    goto CleanUp;
+}
 ```
+**Output**
+*10 items*
 Time taken: 0.612096 ms
-{1,2,3,4,5} + {10,20,30,40,50} = {11,22,33,44,55}
 
-C:\Users\767905\Documents\Parallel Concurrent\Parallel Labs\lab_a\x64\Debug\lab_a.exe (process 35564) exited with code 0 (0x0).
-Press any key to close this window . . .
-```
-
-### 1000 items
+*1000 items*
 Time taken: 0.608384 ms
 
-No noticable difference
+**Reflection**
+This shows that the time to execute is noticably not different when increasing the arraySize, this is because the GPU is capable of executing large amounts of data in parallel. The difference in execution is likely due to overhead in starting the kernel.
