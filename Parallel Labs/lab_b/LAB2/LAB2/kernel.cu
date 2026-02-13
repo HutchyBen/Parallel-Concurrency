@@ -1,14 +1,13 @@
-﻿
-#include "cuda_runtime.h"
+﻿#include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
 #include <stdio.h>
 
-cudaError_t addWithCuda(int *c, const int *a, const int *b);
+cudaError_t addWithCuda(int* c, const int* a, const int* b);
 
-__global__ void addKernel(int *c, const int *a, const int *b)
+__global__ void addKernel(int* c, const int* a, const int* b)
 {
-    int i = blockIdx.x * 12 + blockIdx.y*4 + threadIdx.x*2 + threadIdx.y;
+    int i = threadIdx.x + (threadIdx.y * blockDim.x) + (blockDim.x * blockDim.y * blockIdx.x) + (blockIdx.y * blockDim.x * blockDim.y * gridDim.x);
     c[i] = a[i] + b[i];
 }
 
@@ -26,35 +25,35 @@ int main()
     int c[arraySize][arraySize] = { {0,0,0} };*/
 
 
-    // GEMINI USED TO GENERATE ARRAYS BECAUSE I DONT HATEMYSELF
-    int a[2][3][2][2] = {
-        { // Outer Row 0
-            {{1, 2}, {3, 4}}, // 2x2 Grid at [0][0]
-            {{5, 6}, {7, 8}}, // 2x2 Grid at [0][1]
-            {{9, 0}, {1, 2}}  // 2x2 Grid at [0][2]
-        },
-        { // Outer Row 1
-            {{3, 4}, {5,6}}, // 2x2 Grid at [1][0]
-            {{7, 8}, {9, 0}}, // 2x2 Grid at [1][1]
-            {{1, 2}, {3, 4}}  // 2x2 Grid at [1][2]
-        }
-    };
+    //// GEMINI USED TO GENERATE ARRAYS BECAUSE I DONT HATEMYSELF
+    //int a[2][3][2][2] = {
+    //    { // Outer Row 0
+    //        {{1, 2}, {3, 4}}, // 2x2 Grid at [0][0]
+    //        {{5, 6}, {7, 8}}, // 2x2 Grid at [0][1]
+    //        {{9, 0}, {1, 2}}  // 2x2 Grid at [0][2]
+    //    },
+    //    { // Outer Row 1
+    //        {{3, 4}, {5,6}}, // 2x2 Grid at [1][0]
+    //        {{7, 8}, {9, 0}}, // 2x2 Grid at [1][1]
+    //        {{1, 2}, {3, 4}}  // 2x2 Grid at [1][2]
+    //    }
+    //};
 
 
 
 
-    int b[2][3][2][2] = {
-    { // Outer Row 0
-        {{10, 20}, {30, 40}}, // [0][0]
-        {{50, 60}, {70, 80}}, // [0][1]
-        {{90,  0}, {10, 20}}  // [0][2]
-    },
-    { // Outer Row 1
-        {{30, 40}, {50, 60}}, // [1][0]
-        {{70, 80}, {90,  0}}, // [1][1]
-        {{10, 20}, {30, 40}}  // [1][2]
-    }
-    };
+    //int b[2][3][2][2] = {
+    //{ // Outer Row 0
+    //    {{10, 20}, {30, 40}}, // [0][0]
+    //    {{50, 60}, {70, 80}}, // [0][1]
+    //    {{90,  0}, {10, 20}}  // [0][2]
+    //},
+    //{ // Outer Row 1
+    //    {{30, 40}, {50, 60}}, // [1][0]
+    //    {{70, 80}, {90,  0}}, // [1][1]
+    //    {{10, 20}, {30, 40}}  // [1][2]
+    //}
+    //};
 
     int c[2][3][2][2] = {};
 
@@ -94,12 +93,12 @@ int main()
 }
 
 // Helper function for using CUDA to add vectors in parallel.
-cudaError_t addWithCuda(int *c, const int *a, const int *b)
+cudaError_t addWithCuda(int* c, const int* a, const int* b)
 {
 
-    int *dev_a;
-    int *dev_b;
-    int *dev_c;
+    int* dev_a;
+    int* dev_b;
+    int* dev_c;
     cudaError_t cudaStatus;
 
     // Choose which GPU to run on, change this on a multi-GPU system.
@@ -142,7 +141,7 @@ cudaError_t addWithCuda(int *c, const int *a, const int *b)
     }
 
     // Launch a kernel on the GPU with one thread for each element.
-    addKernel<<<dim3(2,3), dim3(2, 2)>>>(dev_c, dev_a, dev_b);
+    addKernel << <dim3(2, 3), dim3(2, 2) >> > (dev_c, dev_a, dev_b);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
@@ -150,7 +149,7 @@ cudaError_t addWithCuda(int *c, const int *a, const int *b)
         fprintf(stderr, "addKernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
         goto Error;
     }
-    
+
     // cudaDeviceSynchronize waits for the kernel to finish, and returns
     // any errors encountered during the launch.
     cudaStatus = cudaDeviceSynchronize();
@@ -170,6 +169,6 @@ Error:
     cudaFree(dev_c);
     cudaFree(dev_a);
     cudaFree(dev_b);
-    
+
     return cudaStatus;
 }

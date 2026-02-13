@@ -26,9 +26,11 @@ Greetings, world!
 Greetings, world!
 Hello, world!
 ```
-Either output shows up at random.
+Either output shows up at random depending on the mood of the scheduler.
 ## Reflection
-For this lab it shows off how to spawn threads in Rust. This means each of the functions will be running concurrently in their own threads which. This means the order of execution is not guaranteed and can vary each time the program is run. 
+For this lab it shows off how to spawn threads in Rust. This means each of the functions will be running concurrently in their own thread. 
+
+The operating system will schedule them to run on their own CPU thread or share time on the CPU. This means the order of execution is not guaranteed and can vary each time the program is run as the scheduler will not consistently schedule work in the same way. 
 
 We are told that we should expect the output to be jumbled however I could not reproduce it. Just that the order of the output is not guaranteed.
 

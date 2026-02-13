@@ -63,6 +63,8 @@ id: 0   -   block: 3
 ### Reflection
 In the first line which creates 5 threads per block with one thread, it creates a total of 5 threads, where the block will always be 0 and thread index will go from 0 - 5. For the rest it has a total of 6 threads, where number 2 has 2 blocks each with 3 threads, third has 3 blocks with two threads in each one and the final line has 6 blocks each with one thread.
 
+For this example where it's a 1D block and 1D grid of blocks, only the x-axis is used for threadIdx, and blockIdx
+
 ## Exercise 2: Global Thread Index for Multiple 1D Thread Blocks 
 
 ### Question
@@ -103,9 +105,12 @@ const int b[arraySize] = { 10, 20, 30, 40, 50, 60 };
 ### Sample Output
 `{1,2,3,4,5,6} + {10,20,30,40,50,60} = {11,22,33,44,55,66}`
 ### Reflection
-To run my code with the configuration of 3 blocks with 2 threads per block the index used for accessing the array needs to be changed, what it needs to be changed to is the block index * block dimension + the thread index.
+To run my code with the configuration of 3 blocks with 2 threads per block the index used for accessing the array needs to be changed, what it needs to be changed to is the `x block index * x block dimension + x thread index`.
 
 This leads to it counting to through all the indexes ensuring that the blocks are considered and all 6 indexes are counted  
+
+I don't yet have to think of the dimensions as being greater than 1D so I only have to worry about the x-axis at the moment.
+
 
 
 ## Exercise 3: 2D Thread Blocks 
@@ -126,7 +131,7 @@ CUDA supports 1D, 2D, and 3D block and grid configurations using the `dim3` type
 __global__ void addKernel(int *c, const int *a, const int *b, const int size)
 {
     printf("x: %d  -  y: %d\n", threadIdx.x, threadIdx.y);
-    int i = threadIdx.x + threadIdx.y*size;
+    int i = threadIdx.x + threadIdx.y*blockDim.x;
     c[i] = a[i] + b[i];
 }
 ```
@@ -156,7 +161,7 @@ x: 2  -  y: 2
 ```
 
 ### Reflection
-For working with a 2D block, you pass a dim3 to the configuration to tell CUDA you want a multidimensional block. You use the threadIdx.x and threadIdx.y (then threadIdx.z) to access the index of thread in the block. 
+For working with a 2D block, you pass a dim3 to the configuration to tell CUDA you want a multidimensional block. You use the threadIdx.x and threadIdx.y (then threadIdx.z if working in 3d) to access the index of thread in the block. You also use blockDim to get the dimensions of the block.
 
 ## Exercise 4: Global Thread Index for 2D Thread Blocks 
 
@@ -194,10 +199,10 @@ cudaStatus = cudaMemcpy(dev_a, a, size * size * sizeof(int), cudaMemcpyHostToDev
 
 Added a size parameter to the addKernel so dimensions are known
 ```
-__global__ void addKernel(int *c, const int *a, const int *b, const int size)
+__global__ void addKernel(int *c, const int *a, const int *b)
 {
     printf("x: %d  -  y: %d\n", threadIdx.x, threadIdx.y);
-    int i = threadIdx.x + threadIdx.y*size;
+    int i = threadIdx.x + threadIdx.y*blockDim.x;
     c[i] = a[i] + b[i];
 }
 ```
@@ -212,10 +217,12 @@ x: 1  -  y: 1
 x: 2  -  y: 1
 11 22 33
 44 55 66
-0 0 0
+0 0 0 // this is fine my grid was 3x3 for other data this example is calculating 3x2
 ```
 ### Reflection
-To get the global index for a 2D block, the calculation is `x index + (y index * size of row)`. This looks like `int i = threadIdx.x + (threadIdx.y * blockDim.x` (I passed a size variable in and when coding in the lab but i realise I shouldve passed blockDim.x)). This leads to the correct global index being obtained.
+To get the global index for a 2D block, the calculation is `x index + (y index * size of row)`. This looks like `int i = threadIdx.x + (threadIdx.y * blockDim.x)`. This leads to the correct global index being obtained.
+
+I was initially confused about `blockDim` and was passing the size to the kernel however after monday's lecture I understood how `blockDim` and `gridDim` works.
 
 
 
@@ -234,188 +241,60 @@ int i = threadIdx.x; // Modify this line
 
 ```
 
-
-
 ### Solution
 ```
-
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-
-#include <stdio.h>
-
-cudaError_t addWithCuda(int *c, const int *a, const int *b);
-
-__global__ void addKernel(int *c, const int *a, const int *b)
+__global__ void addKernel(int* c, const int* a, const int* b)
 {
-    int i = blockIdx.x * 12 + blockIdx.y*4 + threadIdx.x*2 + threadIdx.y;
+    int i = threadIdx.x + (threadIdx.y * blockDim.x) + (blockDim.x * blockDim.y * blockIdx.x) + (blockIdx.y * blockDim.x * blockDim.y * gridDim.x);
     c[i] = a[i] + b[i];
-}
-
-int main()
-{
-    /*const int arraySize = 6;
-    const int a[arraySize] = { 1, 2, 3, 4, 5, 6 };
-    const int b[arraySize] = { 10, 20, 30, 40, 50, 60 };
-    int c[arraySize] = { 0 };*/
-
-
-    /*const int arraySize = 3;
-    const int a[arraySize][arraySize] = { {1,2,3},{4,5,6},{7,8,9} };
-    const int b[arraySize][arraySize] = { {10,20,30},{40,50,60},{70,80,90} };
-    int c[arraySize][arraySize] = { {0,0,0} };*/
-
-
-    // GEMINI USED TO GENERATE ARRAYS BECAUSE I DONT HATEMYSELF
-    int a[2][3][2][2] = {
-        { // Outer Row 0
-            {{1, 2}, {3, 4}}, // 2x2 Grid at [0][0]
-            {{5, 6}, {7, 8}}, // 2x2 Grid at [0][1]
-            {{9, 0}, {1, 2}}  // 2x2 Grid at [0][2]
-        },
-        { // Outer Row 1
-            {{3, 4}, {5,6}}, // 2x2 Grid at [1][0]
-            {{7, 8}, {9, 0}}, // 2x2 Grid at [1][1]
-            {{1, 2}, {3, 4}}  // 2x2 Grid at [1][2]
-        }
-    };
-
-
-
-
-    int b[2][3][2][2] = {
-    { // Outer Row 0
-        {{10, 20}, {30, 40}}, // [0][0]
-        {{50, 60}, {70, 80}}, // [0][1]
-        {{90,  0}, {10, 20}}  // [0][2]
-    },
-    { // Outer Row 1
-        {{30, 40}, {50, 60}}, // [1][0]
-        {{70, 80}, {90,  0}}, // [1][1]
-        {{10, 20}, {30, 40}}  // [1][2]
-    }
-    };
-
-    int c[2][3][2][2] = {};
-
-    // Add vectors in parallel.
-    cudaError_t cudaStatus = addWithCuda(&c[0][0][0][0], &a[0][0][0][0], &b[0][0][0][0]);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "addWithCuda failed!");
-        return 1;
-    }
-
-    // PRINTF GENERATED BY GEMINI BECASE I DONT HATE YMSELF
-    printf(
-        "--- ROW 0 ---\n"
-        "[%2d %2d]  [%2d %2d]  [%2d %2d]\n"
-        "[%2d %2d]  [%2d %2d]  [%2d %2d]\n\n"
-        "--- ROW 1 ---\n"
-        "[%2d %2d]  [%2d %2d]  [%2d %2d]\n"
-        "[%2d %2d]  [%2d %2d]  [%2d %2d]\n",
-        // Row 0, Box 0       Row 0, Box 1       Row 0, Box 2
-        c[0][0][0][0], c[0][0][0][1], c[0][1][0][0], c[0][1][0][1], c[0][2][0][0], c[0][2][0][1],
-        c[0][0][1][0], c[0][0][1][1], c[0][1][1][0], c[0][1][1][1], c[0][2][1][0], c[0][2][1][1],
-
-        // Row 1, Box 0       Row 1, Box 1       Row 1, Box 2
-        c[1][0][0][0], c[1][0][0][1], c[1][1][0][0], c[1][1][0][1], c[1][2][0][0], c[1][2][0][1],
-        c[1][0][1][0], c[1][0][1][1], c[1][1][1][0], c[1][1][1][1], c[1][2][1][0], c[1][2][1][1]
-    );
-
-    // cudaDeviceReset must be called before exiting in order for profiling and
-    // tracing tools such as Nsight and Visual Profiler to show complete traces.
-    cudaStatus = cudaDeviceReset();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaDeviceReset failed!");
-        return 1;
-    }
-
-    return 0;
-}
-
-// Helper function for using CUDA to add vectors in parallel.
-cudaError_t addWithCuda(int *c, const int *a, const int *b)
-{
-
-    int *dev_a;
-    int *dev_b;
-    int *dev_c;
-    cudaError_t cudaStatus;
-
-    // Choose which GPU to run on, change this on a multi-GPU system.
-    cudaStatus = cudaSetDevice(0);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
-        goto Error;
-    }
-
-    // Allocate GPU buffers for three vectors (two input, one output)    .
-    cudaStatus = cudaMalloc((void**)&dev_c, 2 * 2 * 2 * 3 * sizeof(int));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
-
-    cudaStatus = cudaMalloc((void**)&dev_a, 2 * 2 * 2 * 3 * sizeof(int));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
-
-    cudaStatus = cudaMalloc((void**)&dev_b, 2 * 2 * 2 * 3 * sizeof(int));
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMalloc failed!");
-        goto Error;
-    }
-
-    // Copy input vectors from host memory to GPU buffers.
-    cudaStatus = cudaMemcpy(dev_a, a, 2 * 2 * 2 * 3 * sizeof(int), cudaMemcpyHostToDevice);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "A cudaMemcpy failed!");
-        goto Error;
-    }
-
-    cudaStatus = cudaMemcpy(dev_b, b, 2 * 2 * 2 * 3 * sizeof(int), cudaMemcpyHostToDevice);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "B cudaMemcpy failed!");
-        goto Error;
-    }
-
-    // Launch a kernel on the GPU with one thread for each element.
-    addKernel<<<dim3(2,3), dim3(2, 2)>>>(dev_c, dev_a, dev_b);
-
-    // Check for any errors launching the kernel
-    cudaStatus = cudaGetLastError();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "addKernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
-        goto Error;
-    }
-    
-    // cudaDeviceSynchronize waits for the kernel to finish, and returns
-    // any errors encountered during the launch.
-    cudaStatus = cudaDeviceSynchronize();
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
-        goto Error;
-    }
-
-    // Copy output vector from GPU buffer to host memory.
-    cudaStatus = cudaMemcpy(c, dev_c, 2 * 2 * 2 * 3 * sizeof(int), cudaMemcpyDeviceToHost);
-    if (cudaStatus != cudaSuccess) {
-        fprintf(stderr, "cudaMemcpy failed!");
-        goto Error;
-    }
-
-Error:
-    cudaFree(dev_c);
-    cudaFree(dev_a);
-    cudaFree(dev_b);
-    
-    return cudaStatus;
-}
+};
 ```
 ### Test Data
 
-### Sample Output
+```c
+// GEMINI USED TO GENERATE THIS
+int a[2][3][2][2] = {
+    { // Outer Row 0
+        {{1, 2}, {3, 4}}, // 2x2 Grid at [0][0]
+        {{5, 6}, {7, 8}}, // 2x2 Grid at [0][1]
+        {{9, 0}, {1, 2}}  // 2x2 Grid at [0][2]
+    },
+    { // Outer Row 1
+        {{3, 4}, {5,6}}, // 2x2 Grid at [1][0]
+        {{7, 8}, {9, 0}}, // 2x2 Grid at [1][1]
+        {{1, 2}, {3, 4}}  // 2x2 Grid at [1][2]
+    }
+};
 
+
+
+
+int b[2][3][2][2] = {
+{ // Outer Row 0
+    {{10, 20}, {30, 40}}, // [0][0]
+    {{50, 60}, {70, 80}}, // [0][1]
+    {{90,  0}, {10, 20}}  // [0][2]
+},
+{ // Outer Row 1
+    {{30, 40}, {50, 60}}, // [1][0]
+    {{70, 80}, {90,  0}}, // [1][1]
+    {{10, 20}, {30, 40}}  // [1][2]
+}
+};
+```
+
+### Sample Output
+```
+--- ROW 0 ---
+[11 22]  [55 66]  [99  0]
+[33 44]  [77 88]  [11 22]
+
+--- ROW 1 ---
+[33 44]  [77 88]  [11 22]
+[55 66]  [99  0]  [33 44]
+
+```
 ### Reflection
+For getting the global index when theres a 2D block and 2D grid, it quite a decent bit of calculation to do. The way i think about it was, first get the index of the block you want using `threadIdx.x + threadIdx.y * blockDim.x`. Then figure out the index start index of the block inside the 2D grid. First I figured out the x-axis by doing `blockDim.x * blockDim.y * blockIdx.x`, I then need to add the offset to get to the right y-axis. This looks like `blockDim.x * blockDim.y * gridDim.x * blockIdx.y `. Adding the offset inside block, offset for x-axis and offset for y-axis gives the global index for the thread.
+
+This gave me a headache trying to keep track of all the dimensions but I now understand how all the grid, block and variables all work together to represent the position of a thread.
