@@ -61,7 +61,7 @@ id: 0   -   block: 4
 id: 0   -   block: 3
 ```
 ### Reflection
-
+In the first line which creates 5 threads per block with one thread, it creates a total of 5 threads, where the block will always be 0 and thread index will go from 0 - 5. For the rest it has a total of 6 threads, where number 2 has 2 blocks each with 3 threads, third has 3 blocks with two threads in each one and the final line has 6 blocks each with one thread.
 
 ## Exercise 2: Global Thread Index for Multiple 1D Thread Blocks 
 
@@ -103,8 +103,10 @@ const int b[arraySize] = { 10, 20, 30, 40, 50, 60 };
 ### Sample Output
 `{1,2,3,4,5,6} + {10,20,30,40,50,60} = {11,22,33,44,55,66}`
 ### Reflection
+To run my code with the configuration of 3 blocks with 2 threads per block the index used for accessing the array needs to be changed, what it needs to be changed to is the block index * block dimension + the thread index.
 
----
+This leads to it counting to through all the indexes ensuring that the blocks are considered and all 6 indexes are counted  
+
 
 ## Exercise 3: 2D Thread Blocks 
 
@@ -154,8 +156,7 @@ x: 2  -  y: 2
 ```
 
 ### Reflection
-
----
+For working with a 2D block, you pass a dim3 to the configuration to tell CUDA you want a multidimensional block. You use the threadIdx.x and threadIdx.y (then threadIdx.z) to access the index of thread in the block. 
 
 ## Exercise 4: Global Thread Index for 2D Thread Blocks 
 
@@ -214,8 +215,9 @@ x: 2  -  y: 1
 0 0 0
 ```
 ### Reflection
+To get the global index for a 2D block, the calculation is `x index + (y index * size of row)`. This looks like `int i = threadIdx.x + (threadIdx.y * blockDim.x` (I passed a size variable in and when coding in the lab but i realise I shouldve passed blockDim.x)). This leads to the correct global index being obtained.
 
----
+
 
 ## Exercise 5: Global Thread Index for Multiple 2D Thread Blocks 
 
@@ -412,38 +414,6 @@ Error:
     return cudaStatus;
 }
 ```
-### Test Data
-
-### Sample Output
-
-### Reflection
-
----
-
-## Exercise 6: Matrix Addition (Optional) 
-
-### Question
-
-Write a CUDA program that computes the matrix sum  by performing the addition in parallel on the GPU . Consider two  matrices  and , defined procedurally by their entries at row  and column  (using zero-based indexing) as follows:
-
-
-Your program must complete the following steps:
-
-1. Allocate memory for , , and  on both the host and device.
-
-
-2. Initialize  and  according to the definitions above.
-
-
-3. Launch a CUDA kernel that computes  for all .
-
-
-4. Copy the result matrix  back to the host and verify correctness (e.g., by checking selected entries or printing a small portion of the output).
-
-
-
-### Solution
-
 ### Test Data
 
 ### Sample Output
