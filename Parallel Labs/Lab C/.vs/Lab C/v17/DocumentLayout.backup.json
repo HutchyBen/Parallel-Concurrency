@@ -1,0 +1,92 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\767905\\source\\repos\\Lab C\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0CEBDE88-F921-EFE5-7992-4BBDADB9DFE7}|UnifiedStatic\\UnifiedStatic.vcxproj|C:\\Users\\767905\\source\\repos\\Lab C\\UnifiedStatic\\kernel.cu||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{0CEBDE88-F921-EFE5-7992-4BBDADB9DFE7}|UnifiedStatic\\UnifiedStatic.vcxproj|solutionrelative:UnifiedStatic\\kernel.cu||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4AEDF223-2265-6497-C4B2-332ED5F75CBB}|UnifiedMemoru\\UnifiedMemoru.vcxproj|C:\\Users\\767905\\source\\repos\\Lab C\\UnifiedMemoru\\kernel.cu||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{4AEDF223-2265-6497-C4B2-332ED5F75CBB}|UnifiedMemoru\\UnifiedMemoru.vcxproj|solutionrelative:UnifiedMemoru\\kernel.cu||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F78453EE-394C-4236-AEF6-1CC7A804F9B1}|CPUProcessing\\CPUProcessing.vcxproj|C:\\Users\\767905\\source\\repos\\Lab C\\CPUProcessing\\CPUProcessing.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{F78453EE-394C-4236-AEF6-1CC7A804F9B1}|CPUProcessing\\CPUProcessing.vcxproj|solutionrelative:CPUProcessing\\CPUProcessing.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5BCDF16B-BD6A-7CF8-571D-D318B78BBFE1}|Lab C\\Lab C.vcxproj|C:\\Users\\767905\\source\\repos\\Lab C\\Lab C\\kernel.cu||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{5BCDF16B-BD6A-7CF8-571D-D318B78BBFE1}|Lab C\\Lab C.vcxproj|solutionrelative:Lab C\\kernel.cu||{8B382828-6202-11D1-8870-0000F87579D2}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "kernel.cu",
+              "DocumentMoniker": "C:\\Users\\767905\\source\\repos\\Lab C\\UnifiedStatic\\kernel.cu",
+              "RelativeDocumentMoniker": "UnifiedStatic\\kernel.cu",
+              "ToolTip": "C:\\Users\\767905\\source\\repos\\Lab C\\UnifiedStatic\\kernel.cu",
+              "RelativeToolTip": "UnifiedStatic\\kernel.cu",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-02-13T12:03:21.933Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "kernel.cu",
+              "DocumentMoniker": "C:\\Users\\767905\\source\\repos\\Lab C\\UnifiedMemoru\\kernel.cu",
+              "RelativeDocumentMoniker": "UnifiedMemoru\\kernel.cu",
+              "ToolTip": "C:\\Users\\767905\\source\\repos\\Lab C\\UnifiedMemoru\\kernel.cu",
+              "RelativeToolTip": "UnifiedMemoru\\kernel.cu",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-02-13T11:27:22.704Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CPUProcessing.cpp",
+              "DocumentMoniker": "C:\\Users\\767905\\source\\repos\\Lab C\\CPUProcessing\\CPUProcessing.cpp",
+              "RelativeDocumentMoniker": "CPUProcessing\\CPUProcessing.cpp",
+              "ToolTip": "C:\\Users\\767905\\source\\repos\\Lab C\\CPUProcessing\\CPUProcessing.cpp",
+              "RelativeToolTip": "CPUProcessing\\CPUProcessing.cpp",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA0AAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-02-13T10:56:00.031Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "kernel.cu",
+              "DocumentMoniker": "C:\\Users\\767905\\source\\repos\\Lab C\\Lab C\\kernel.cu",
+              "RelativeDocumentMoniker": "Lab C\\kernel.cu",
+              "ToolTip": "C:\\Users\\767905\\source\\repos\\Lab C\\Lab C\\kernel.cu",
+              "RelativeToolTip": "Lab C\\kernel.cu",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-02-13T10:54:37.793Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
